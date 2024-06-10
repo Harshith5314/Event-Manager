@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Manager App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f7fafc;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin: auto;
+      width: 85%;
+      padding: 10px;
+      background: #f78c15;
+      border-radius: 10px;
+      box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      -webkit-box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      -moz-box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      padding: 1.5rem;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+
+    }
+
+    main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      padding: 1rem;
+    }
+
+    .event-form {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      -webkit-box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      -moz-box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      padding: 2.5rem;
+      width: 500px;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      padding-bottom: 6px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background: #f78c15;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #e57a00;
+    }
+
+    .event-list {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      -webkit-box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      -moz-box-shadow: 0px 10px 107px 13px rgba(0, 0, 0, 0.14);
+      padding: 1rem;
+      width: 600px;
+      max-width: 100%;
+    }
+
+    ul {
+
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      border: none;
+      background: #ff910072;
+    }
+
+    img {
+      width: 40px;
+      height: auto;
+      margin-bottom: -15px;
+    }
+
+    .delete-button {
+      background: #ff0000;
+      color: #ffffff;
+      border: none;
+      border-radius: 5px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <img src="scissors.png" alt="Your Logo" />
+    <h1>Event Manager</h1>
+  </header>
+  <main>
+    <div class="event-form">
+
+      <h2>Add Event in List</h2>
+      <form id="eventForm">
+        <div class="form-group">
+          <label for="eventName">Event Name:</label>
+          <input type="text" id="eventName" required>
+        </div>
+        <div class="form-group">
+          <label for="eventDate">Event Date:</label>
+          <input type="date" id="eventDate" required>
+        </div>
+        <div class="form-group">
+          <label for="eventTime">Event Time:</label>
+          <input type="time" id="eventTime" required>
+        </div>
+        <div class="form-group">
+          <label for="eventLocation">Event Location:</label>
+          <input type="text" id="eventLocation" required>
+        </div>
+        <button type="submit">Create Event</button>
+      </form>
+    </div>
+    <div class="event-list">
+      <h2>Upcoming Events</h2>
+      <ul id="events"></ul>
+    </div>
+  </main>
+  <script>
+    const eventForm = document.getElementById('eventForm');
+    const eventNameInput = document.getElementById('eventName');
+    const eventDateInput = document.getElementById('eventDate');
+    const eventTimeInput = document.getElementById('eventTime');
+    const eventLocationInput = document.getElementById('eventLocation');
+    const eventsList = document.getElementById('events');
+
+    // Load events from local storage on page load
+    window.onload = function () {
+      const storedEvents = JSON.parse(localStorage.getItem('events')) || [];
+      storedEvents.forEach(event => {
+        appendEventToList(event);
+      });
+    };
+
+    eventForm.addEventListener('submit', createEvent);
+
+    function createEvent(e) {
+      e.preventDefault();
+      const eventName = eventNameInput.value;
+      const eventDate = eventDateInput.value;
+      const eventTime = eventTimeInput.value;
+      const eventLocation = eventLocationInput.value;
+
+      if (eventName && eventDate && eventTime && eventLocation) {
+        const eventItem = {
+          name: eventName,
+          date: eventDate,
+          time: eventTime,
+          location: eventLocation
+        };
+
+        // Retrieve existing events from local storage
+        const storedEvents = JSON.parse(localStorage.getItem('events')) || [];
+
+        // Add the new event to the array
+        storedEvents.push(eventItem);
+
+        // Save the updated events back to local storage
+        localStorage.setItem('events', JSON.stringify(storedEvents));
+
+        // Append the event to the list
+        appendEventToList(eventItem);
+
+        // Reset the form
+        eventForm.reset();
+      }
+    }
+
+    function appendEventToList(eventItem) {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <strong>${eventItem.name}</strong><br>
+        Date: ${eventItem.date}<br>
+        Time: ${eventItem.time}<br>
+        Location: ${eventItem.location}
+        <button class="delete-button" onclick="deleteEvent(this)">Delete</button>
+      `;
+      eventsList.appendChild(li);
+    }
+
+    function deleteEvent(button) {
+      const li = button.parentNode;
+      const eventName = li.querySelector('strong').innerText;
+
+      // Retrieve existing events from local storage
+      const storedEvents = JSON.parse(localStorage.getItem('events')) || [];
+
+      // Remove the event with the matching name
+      const updatedEvents = storedEvents.filter(event => event.name !== eventName);
+
+      // Save the updated events back to local storage
+      localStorage.setItem('events', JSON.stringify(updatedEvents));
+
+      // Remove the event from the list
+      eventsList.removeChild(li);
+    }
+  </script>
+</body>
+
+</html>
